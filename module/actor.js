@@ -4,13 +4,13 @@
  */
 export class IronswornActor extends Actor {
   /** @override */
-  getRollData () {
+  getRollData() {
     const data = super.getRollData()
     return data
   }
 
   /** @override */
-  prepareDerivedData () {
+  prepareDerivedData() {
     // Calculate momentum max/reset from debilities
     const numDebilitiesMarked = Object.values(this.data.data.debility).filter(
       x => x
@@ -19,7 +19,7 @@ export class IronswornActor extends Actor {
     this.data.data.momentumReset = Math.max(0, 2 - numDebilitiesMarked)
   }
 
-  async addDefaultItems () {
+  async addDefaultItems() {
     // Every character needs a bondset
     await this.createOwnedItem({ type: 'bondset', name: 'bonds' })
 
@@ -27,7 +27,7 @@ export class IronswornActor extends Actor {
     const pack = game.packs.get('foundry-ironsworn.ironswornitems')
     const packIndex = await pack.getIndex()
     for (const itemEntry of packIndex) {
-      const item = await pack.getEntity(itemEntry._id)
+      const item = await pack.getEntity(itemEntry.id)
       if (item.type === 'move') await this.createOwnedItem(item)
     }
   }

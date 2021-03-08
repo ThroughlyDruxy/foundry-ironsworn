@@ -40,7 +40,7 @@ Hooks.once('setup', () => {
   Roll.prototype.render = async function (chatOptions = {}) {
     chatOptions = mergeObject(
       {
-        user: game.user._id,
+        user: game.user.id,
         flavor: null,
         template: CONFIG.Dice.template,
         blind: false
@@ -65,7 +65,7 @@ Hooks.once('setup', () => {
 })
 
 // Autofucus on input box when rolling
-class IronswornRollDialog extends Dialog {}
+class IronswornRollDialog extends Dialog { }
 Hooks.on('renderIronswornRollDialog', async (dialog, html, data) => {
   html.find('input').focus()
 })
@@ -91,7 +91,7 @@ Handlebars.registerHelper('ifIsIronswornRoll', function (options) {
   }
 })
 
-function classesForRoll (r) {
+function classesForRoll(r) {
   const d = r.dice[0]
   const maxRoll = d?.faces || 10
   return [
@@ -140,12 +140,12 @@ Handlebars.registerHelper('ironswornHitType', function () {
   return game.i18n.localize('IRONSWORN.WeakHit')
 })
 
-export async function ironswornMoveRoll (bonusExpr = '0', values = {}, title) {
+export async function ironswornMoveRoll(bonusExpr = '0', values = {}, title) {
   const r = new Roll(`{d6+${bonusExpr}, d10,d10}`, values).roll()
   r.toMessage({ flavor: `<div class="move-title">${title}</div>` })
 }
 
-export async function ironswornRollDialog (data, stat, title) {
+export async function ironswornRollDialog(data, stat, title) {
   const template = 'systems/foundry-ironsworn/templates/roll-dialog.hbs'
   const templateData = { data, stat }
   const html = await renderTemplate(template, templateData)

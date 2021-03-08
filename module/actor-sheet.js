@@ -6,7 +6,7 @@ import { ironswornRollDialog } from './ironsworn.js'
  */
 export class IronswornActorSheet extends ActorSheet {
   /** @override */
-  static get defaultOptions () {
+  static get defaultOptions() {
     return mergeObject(super.defaultOptions, {
       classes: ['ironsworn', 'sheet', 'actor'],
       width: 1200,
@@ -16,7 +16,7 @@ export class IronswornActorSheet extends ActorSheet {
   }
 
   /** @override */
-  get template () {
+  get template() {
     const path = 'systems/foundry-ironsworn/templates/actor'
     return `${path}/${this.actor.data.type}.hbs`
   }
@@ -24,7 +24,7 @@ export class IronswornActorSheet extends ActorSheet {
   /* -------------------------------------------- */
 
   /** @override */
-  getData () {
+  getData() {
     const data = super.getData()
 
     data.movesForDisplay = []
@@ -53,7 +53,7 @@ export class IronswornActorSheet extends ActorSheet {
   /* -------------------------------------------- */
 
   /** @override */
-  activateListeners (html) {
+  activateListeners(html) {
     super.activateListeners(html)
 
     // Everything below here is only needed if the sheet is editable
@@ -93,26 +93,26 @@ export class IronswornActorSheet extends ActorSheet {
       const itemId = $(ev.target)
         .parents('.item-row')
         .data('id')
-      const item = this.actor.items.find(x => x._id === itemId)
+      const item = this.actor.items.find(x => x.id === itemId)
       return item.markProgress()
     })
     html.find('.fulfillProgress').click(ev => {
       const itemId = $(ev.target)
         .parents('.item-row')
         .data('id')
-      const item = this.actor.items.find(x => x._id === itemId)
+      const item = this.actor.items.find(x => x.id === itemId)
       return item.fulfill()
     })
     html.find('.edit-item').click(ev => {
       const itemId = $(ev.target)
         .parents('.item-row')
         .data('id')
-      const item = this.actor.items.find(x => x._id === itemId)
+      const item = this.actor.items.find(x => x.id === itemId)
       item.sheet.render(true)
     })
     html.find('.edit-bonds').click(ev => {
       const itemId = ev.target.dataset.id
-      const item = this.actor.items.find(x => x._id === itemId)
+      const item = this.actor.items.find(x => x.id === itemId)
       item.sheet.render(true)
     })
 
@@ -120,7 +120,7 @@ export class IronswornActorSheet extends ActorSheet {
     html.find('.item-edit').click(ev => {
       ev.preventDefault()
       const li = $(ev.currentTarget).parents('.item')
-      const item = this.actor.getOwnedItem(li.data('itemId'))
+      const item = this.actor.items.get(li.data('itemId'))
       item.sheet.render(true)
     })
 
@@ -136,17 +136,17 @@ export class IronswornActorSheet extends ActorSheet {
     html.find('.track-target').click(ev => {
       ev.preventDefault()
       const row = $(ev.currentTarget).parents('.item-row')
-      const item = this.actor.getOwnedItem(row.data('id'))
+      const item = this.actor.items.get(row.data('id'))
       const newValue = parseInt(ev.currentTarget.dataset.value)
       return item.update({ 'data.track.current': newValue })
     })
     html.find('.item-row').map((i, el) => {
-      const item = this.actor.getOwnedItem(el.dataset.id)
+      const item = this.actor.items.get(el.dataset.id)
       this._attachInlineRollListeners($(el), item)
     })
     html.find('.roll-asset-track').click(ev => {
       const row = $(ev.currentTarget).parents('.item-row')
-      const item = this.actor.getOwnedItem(row.data('id'))
+      const item = this.actor.items.get(row.data('id'))
       const data = {
         ...this.getData(),
         track: item.data.data.track.current
@@ -155,10 +155,10 @@ export class IronswornActorSheet extends ActorSheet {
     })
   }
 
-  async _handleMoveExpand (ev) {
+  async _handleMoveExpand(ev) {
     ev.preventDefault()
     const li = $(ev.currentTarget).parents('li')
-    const item = this.actor.getOwnedItem(li.data('id'))
+    const item = this.actor.items.get(li.data('id'))
 
     if (li.hasClass('expanded')) {
       const summary = li.children('.move-summary')
@@ -173,17 +173,17 @@ export class IronswornActorSheet extends ActorSheet {
     li.toggleClass('expanded')
   }
 
-  async _handleAssetExpand (ev) {
+  async _handleAssetExpand(ev) {
     ev.preventDefault()
     const li = $(ev.currentTarget).parents('li')
-    const item = this.actor.getOwnedItem(li.data('id'))
+    const item = this.actor.items.get(li.data('id'))
 
-    const flagKey = `expanded-${item._id}`
+    const flagKey = `expanded-${item.id}`
     const value = this.actor.getFlag('foundry-ironsworn', flagKey)
     this.actor.setFlag('foundry-ironsworn', flagKey, !value)
   }
 
-  _parseRollPlus (text) {
+  _parseRollPlus(text) {
     const rendered = TextEditor.enrichHTML(text)
     return rendered.replace(
       /\(\(rollplus (.*?)\)\)/g,
@@ -195,7 +195,7 @@ export class IronswornActorSheet extends ActorSheet {
     )
   }
 
-  _attachInlineRollListeners (html, item) {
+  _attachInlineRollListeners(html, item) {
     html.find('a.inline-roll').on('click', ev => {
       ev.preventDefault()
       const el = ev.currentTarget
@@ -205,7 +205,7 @@ export class IronswornActorSheet extends ActorSheet {
     })
   }
 
-  async _rollStat (event) {
+  async _rollStat(event) {
     event.preventDefault()
     const el = event.currentTarget
 
@@ -233,13 +233,13 @@ export class IronswornActorSheet extends ActorSheet {
         const pack = game.packs.get('foundry-ironsworn.ironsworntables')
         const index = await pack.getIndex()
         const entry = index.find(x => x.name == tableName)
-        if (entry) table = await pack.getEntity(entry._id)
+        if (entry) table = await pack.getDocument(entry.id)
       }
       if (table) table.draw()
     }
   }
 
-  async _rollDialog (key) {
+  async _rollDialog(key) {
     const move = MOVES[key]
     const html = await renderTemplate(
       'systems/foundry-ironsworn/templates/move-dialog.hbs',
@@ -261,13 +261,13 @@ export class IronswornActorSheet extends ActorSheet {
     }).render(true)
   }
 
-  async _burnMomentum (event) {
+  async _burnMomentum(event) {
     event.preventDefault()
 
     const { momentum, momentumReset } = this.actor.data.data
     if (momentum > momentumReset) {
       await this.actor.update({
-        _id: this.actor.id,
+        id: this.actor.id,
         data: { momentum: momentumReset }
       })
     }
