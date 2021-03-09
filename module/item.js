@@ -8,20 +8,20 @@ export class IronswornItem extends Item {
   /**
    * Progress methods
    */
-  markProgress () {
-    if (this.data.data.rank === undefined) return
+  markProgress() {
+    if (this.data.data.data.rank === undefined) return
 
     const increment = RANK_INCREMENTS[this.data.data.rank]
     const newValue = Math.min(this.data.data.current + increment, 40)
     return this.update({ 'data.current': newValue })
   }
 
-  clearProgress () {
+  clearProgress() {
     if (this.data.data.rank === undefined) return
     return this.update({ 'data.current': 0 })
   }
 
-  fulfill () {
+  fulfill() {
     if (this.data.data.rank === undefined) return
     const progress = Math.floor(this.data.data.current / 4)
     const r = new Roll(`{${progress},d10,d10}`).roll()
@@ -34,16 +34,16 @@ export class IronswornItem extends Item {
   /**
    * Asset methods
    */
-  createField () {
+  createField() {
     const fields = this.data.data.fields
     fields.push({ name: '', value: '' })
     return this.update({ 'data.fields': fields })
   }
-  deleteField (name) {
+  deleteField(name) {
     const fields = this.data.data.fields
     return this.update({ 'data.fields': fields.filter(x => x.name !== name) })
   }
-  createAbility () {
+  createAbility() {
     const abilitiese = this.data.data.abilities
     abilities.push({
       enabled: false,
@@ -51,7 +51,7 @@ export class IronswornItem extends Item {
     })
     return this.update({ 'data.abilities': abilities })
   }
-  deleteAbility (name) {
+  deleteAbility(name) {
     const abilities = this.data.data.abilities
     return this.update({
       'data.abilities': abilities.filter(x => x.name !== name)
